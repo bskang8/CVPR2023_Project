@@ -1,10 +1,10 @@
 ## 0. 개요
 
-- LLM(Large Language Model)은 트랜스포머(transformer) 아키텍처를 활용하는 심층 신경망입니다. LLM은 엄청난 양의 비정형 데이터를 비지도 학습한 foundation model의 한 종류이며 fine-tuning을 통해 다향한 종류의 downstream task 모델로 변형될 수 있습니다.
+- LLM(Large Language Model)은 트랜스포머(transformer) 아키텍처를 활용하는 심층 신경망입니다. LLM은 엄청난 양의 비정형 데이터를 비지도 학습한 파운데이션 모델(foundation model)의 한 종류이며 파인튜닝(fine-tuning)을 통해 다향한 종류의 downstream task 모델로 변형될 수 있습니다.
 
-- Transformer 구조는 크게 encoders와 decoders로 구성됩니다. Encoders와 decoders는 네트워크의 구조적인 측면으로 바라보면 몇 가지 차이점을 제외하고는 거의 동일한 구조를 가지고 있습니다. (자세한 내용은 [Transformer](https://aman.ai/primers/ai/transformers/#transformer-encoder-and-decoder) 입문과 [Autoregressive vs. Autoencoder Models](https://aman.ai/primers/ai/autoregressive-vs-autoencoder-models/)를 참조하세요)
+- 트랜스포머 구조는 크게 인코더 모델(encoder 모델)과 이코더 모델(decoder model)로 구성됩니다. 두 모델을 구조적인 측면으로 바라보면 몇 가지 차이점을 제외하고는 거의 동일한 구조를 가지고 있습니다. (자세한 내용은 [Transformer](https://aman.ai/primers/ai/transformers/#transformer-encoder-and-decoder) 입문과 [Autoregressive vs. Autoencoder Models](https://aman.ai/primers/ai/autoregressive-vs-autoencoder-models/)를 참조하세요)
   
-- 아울러, 생성형 인공지능은 디코더 기반 모델이 주로 사용되고 있기 때문에, 본 글에서는 encoder models (예: BERT 및 그 변형)보다는 decoder models (예: GPT-x)에 더 중점을 두려고 합니다. 이후 LLM이라는 용어는 decoder기반 모델을 지칭하고자 합니다.
+- 아울러, 생성형 인공지능은 디코더 기반 모델이 주로 사용되고 있기 때문에, 본 글에서는 인코더 모델(예: BERT 및 그 변형) 보다는 디코더 모델(예: GPT-x)에 더 중점을 두려고 합니다. 이후 LLM이라는 용어는 decoder기반 모델을 지칭하고자 합니다.
 
 - 주어진 텍스트 "prompt"가 주어졌을 때, 이 시스템이 본질적으로 하는 일은 시스템이 알고 있는 모든 "vocabulary" (단어들의 목록 - 단어의 부분 또는 토큰)에 대한 확률 분포를 계산하는 것입니다. Vocabulary는 사람이 설계하여 시스템에 부여합니다. 따라서 vocabulary는 시스템마다 다를 수 있으며 GPT-3의 경우 약 50,000개 토큰의 vocabulary가 있습니다. ([Source](https://aiguide.substack.com/p/on-detecting-whether-text-was-generated))
 
@@ -40,7 +40,44 @@
 
 #### 1.3.1. Dot Product Similarity
 - 두 벡터 $u$와 $v$의 dot product는 다음과 같이 정의된다 :
+$$u \cdot v = |u||v| cos\theta$$
+
+- $|v|=1$ 일때 유사도의 측정을 아래의 그림처럼 나타내기 편할 것이다 $(cos\theta = \frac{u \cdot v}{|u||v|} = \frac{u \cdot v}{|u|})$
+
+- $\theta = 0$일 때, $cos\theta = 1$이 되고 두 벡터는 동일 선상에 있고 내적은 각 벡터의 크기간의 곱이 됩니다. 그리고 $\theta$가 직각일 때, $cos\theta =0$이 되고 두 벡터는 직교하며 내적은 0이 됩니다. 일반적으로 $cos\theta$는 두 벡터방향의 유사성을 나타냅니다 ($-1$일 때는 반대 방향을 나타냅니다). 이러한 특징은 차원이 증가해도 보존이 되기 때문에 다차원 공간에서 유사도 측정을 하는데 $cos\theta$가 중요하게 사용됩니다. 이것이 유사도 측정에 가장 일반적으로 사용하는 이유가 됩니다.
+
+- $u$와 $v$의 내적(dot product)은 벡터 $u$가 벡터 $v$로 사영(projection)되고 (반대도 성립) $u$의 사영된 크기($|u| cos\theta$)와 $v$의 크기($|v|$)를 곱한 값으로 나타납니다.
+
+- $v$를 고정한 상태에서 $u$의 가능한 모든 회전을 시각화하면 내적은 다음을 제공합니다.
+  - $u$와 $v$가 직교할 때 벡터 $u$가 벡터 $v$로 사영(projection)하면 크기가 0인 벡터가 됨으로 내적(dot product)은 0이 됩니다. 이것은 직관적으로 유사도가 $0$인 것과 대응됩니다.
+  - $u$와 $v$가 같은 방향이면 내적(dot product)는 가장 큰 값 $|u| |v|$를 갖는다.
+  - $u$와 $v$가 같은 방향이면 내적(dot product)는 가장 큰 값 $|u| |v|$를 갖는다.
+
+- $u \cdot v$를 $u$와 $v$의 크기 $|u| |v|$로 나누면 범위가 $[-1, 1]$로 제한되어 스케일이 불변이 되고 이것이 코사인 유사도를 선정하는 이유가 되기도 합니다.
+
+#### 1.3.2. Cosine Similarity
+
+$$CosineSimilarity(u,v) = \frac{u \cdot v}{||u|| ||v||} = \frac{ \Sigma^{n}_{1} u_i v_i }{ \sqrt{ \Sigma^n_1 u^2_i } \sqrt{ \Sigma^n_1 v^2_i } }  $$
+
+
+
+- 여기서,
+  - $u$와 $v$는 비교하고자 하는 두개의 벡터들 입니다.
+  - 연산 $\cdot$ 는 내적(dot product)을 의미합니다.
+  - $||u||$와 $||v||$는 각 벡터들의 크기 (또는 norm)으로 나타내고 $n$은 벡터의 차원을 나타냅니다.
+    
+- 앞서 언급을 했지만 길이 정규화 부분(즉, $u \cdot v$를 $u$와 $v$의 크기 $||u|| ||v||$로 나눔)은 범위를 $[-1,1]$로 제한하여 크기가 변하지 않게 만듭니다.
+
+#### 1.3.3. Cosine Similarity vs. Dot Product Similarity
+- Cosine similarity과 dot product similarity는 모두 텍스트 문서, 사용자 선호도 등을 나타낼 수 있는 벡터 간의 유사성을 결정하는 데 사용되는 기술입니다. 둘 사이의 선택은 특정 사용 사례와 원하는 속성에 따라 달라집니다. 다음은 dot product similarity에 비해 cosine similarity가 얻을 수 있는 장점을 비교한 것입니다:
   
-  $$
-  u \cdot v = |u||v| cos\theta
-  $$
+  - **Magnitude Normalization (크기 정규화)** : Cosine similarity는 크기를 무시하고 두 벡터 사이의 각도만 고려합니다. 이는 길이가 서로 다른 문서나 크기가 유사성을 나타내지 않는 벡터를 비교할 때 특히 유용합니다. 반면에 dot product similarity는 벡터의 크기에 영향을 받습니다. 특정 용어에 대한 언급이 많은 긴 문서는 관련 콘텐츠의 비율이 낮더라도 다른 문서와 높은 내적을 가질 수 있습니다. 동일한 크기를 갖도록 데이터를 정규화하면 두 데이터를 구별할 수 없습니다. 때로는 벡터의 크기를 무시하는 것이 바람직할 때가 있고 이런 경우는 cosine similarity가 좋은 선택이 될수 있습니다. 하지만 벡터의 크기가 중요한 역할을 한다면 dot product similarity가 더 좋을 것입니다. 다른 말로 하면 cosine similarity는 크기를 정규화한 ($\in [0,1]$) 벡터들의 단순한 내적(dot product)로 생각할 수 있습니다. Cosine similarity는 크기가 불변임으로 자연스럽게 다양한 데이터 샘플에(즉, 다양한 길이) 적용될 수 있기 때문에 선호됩니다. 예를 들어 두 개의 문서 세트가 있고 각 세트 내에서 유사성을 계산한다고 가정해 보겠습니다. 그리고 각 세트 내의 문서의 내용은 유사하지만 세트 #1 문서는 세트 #2 문서보다 짧다고 가정하겠습니다. 이때 세트 #1, #2는 임베딩/특징의 크기가 다르게 나타날 수 있고 dot product similarity는 다른 값을 생성하지만 cosine similarity 유사한 값을 생성합니다 (길이가 정규화 되었기 때문). 반면에, 일반 내적은 연산이 적기 때문에 (길이 정규화가 없음) "저렴" 합니다(복잡성과 구현 측면).
+  - **Bound Values (제한된 값)** : 코사인 유사성은 음수가 아닌 차원을 가진 벡터에 대해 -1과 1 사이의 값을 반환하고, 특히 방향이 같은 모든 벡터들에 대해 0과 1 사이의 값을 반환합니다 (문서의 TF-IDF 표현의 경우처럼). 이런 제한된 특성은 해석을 더 쉽게 할수 있습니다. Dot product는 갑의 범위가 음의 무한대에서 양의 무한대이기 때문에 정규화 또는 임계값 설정을 더 어렵게 할수 있습니다.
+    
+  - **Robustness in High Dimensions (높은 차원에서의 견고함)** : 차원이 높은 경우 대다수의 벡터들은 거의 직교에 가까운 경향을 나타내고 이는 내적을 하면 거의 0에 가까워짐을 의미한다. 하지만 cosine similarity는 여전히 의미 있는 차이값을 제공한다. 내적(dot product)은 각 차원에 따라서 그 값이 매우 민감하고 특히, 차원이 높은 경우 그 영향을 더 많이 받는다. 벡터가 음수가 아니고 크기가 텍스트 길이에 영향을 받을 수 있는 TF-IDF와 같은 모델로 텍스트를 표현할 때 코사인 유사성이 더 적합합니다.
+    
+  - **Common Use Cases (일반적인 사용 사례)** :  Cosine similarity 텍스트 분석, 정보 검색 및 추천 시스템 영역에서의 효율성 때문에 해당 영역들에서 광범위하게 사용된다. 내적(dot product)은 고유한 장점이 있지만 추가적인 정규화 없이는 이러한 사용 사례에 적합하지 않을 수 있습니다.
+    
+  - **Intuitiveness (직관성)** : 많은 시나리오에서 각도(cosine similarity) 측면에서 생각하는 것이 원시 투영(dot product)을 고려하는 것보다 더 직관적일 수 있습니다. 예를 들어, 두 벡터가 크기에 관계없이 정확히 동일한 방향을 가리키는 경우 코사인 유사성은 1이며 이는 완벽한 유사성을 나타냅니다.
+    
+  - **Centroid Calculation (중심계산)** : 클러스터링과 같이 여러 벡터들의 중심(평균)을 계산하려고 할 때 중심은 코사인 유사성 하에서 의미 있는 상태로 유지됩니다. 벡터의 평균을 낸 다음 다른 벡터와 cosine similarity를 사용하여 비교하면 벡터가 "평균" 벡터와 얼마나 유사한지를 측정할 수 있습니다. 내적의 경우는 반드시 그런 것은 아닙니다. 이러한 장점에도 불구하고 일부 응용 프로그램(특히 신경망과 딥러닝 분야에서는) 계산 속성과 학습된 임베딩의 특성 때문에 원시 내적(때로 정규화 단계가 뒤따름)이 선호된다는 사실을 주목할 가치가 있습니다. 따라서 위의 측정방법 중 선택을 할 때는 항상 특정 응용 프로그램과 데이터 속성을 고려해야 합니다.
