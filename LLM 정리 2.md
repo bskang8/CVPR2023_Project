@@ -17,38 +17,47 @@
      - 자세한 내용은 [토큰화에 대한 입문서](https://aman.ai/primers/ai/tokenizer/)를 참조하세요.
        
   2. **임베딩** :
-     - 각 토큰은 임베딩 매트릭스를 사용하여 고차원 벡터에 매핑됩니다. 이 벡터 표현은 토큰의 의미론적 의미를 포착하며 모델의 다음 레이어에 입력으로 사용됩니다.
+     - 각 토큰은 임베딩 매트릭스를 사용하여 고차원 벡터에 매핑됩니다. 이 벡터 표현은 토큰의 맥락적 의미를 포착하며 모델의 다음 레이어에 입력으로 사용됩니다.
      - 토큰의 순서에 대한 정보를 모델에 제공하기 위해 매핑된 임베딩에 위치 인코딩(positional encoding)이 추가됩니다. 이는 트랜스포머와 같은 모델이 고유한 순서 인식을 갖고 있지 않기 때문에 특히 중요합니다.
 
   3. **트랜스포머 구조** :
      - 대부분의 최신 LLM의 핵심은 트랜스포머 구조입니다.
      - 트랜스포머는 여러 레이어로 구성되어 있으며, 각 레이어에는 두 가지 주요 구성 요소가 있습니다 : multi-head self-attention 메커니즘과 position-wise feed-forward network 입니다.
-     - 자기 어텐션 메커니즘은 각 토큰들이 자신과 관련해 중요성을 갖는 다른 토큰들에게 가중치를 부여할 수 있게 합니다. 이는 본질적으로 주어진 토큰과 관련있는 특정 부분에 대해 모델이 "주의를 기울일" 수 있도록 합니다.
+     - 자기 어텐션 메커니즘(self-attention mechanism)은 각 토큰들이 자신과 관련해 중요성을 갖는 다른 토큰들에게 가중치를 부여할 수 있게 합니다. 이는 본질적으로 주어진 토큰과 관련있는 특정 부분에 대해 모델이 "주의를 기울일" 수 있도록 합니다.
+     - 어텐션 연산된 결과는, 각 위치에서 독립적으로 피드포워드 신경망으로 전달됩니다.
+     - 자세한 내용은 [트랜스포머 아키텍처에 대한 입문서](https://aman.ai/primers/ai/transformers/)를 참조하세요.
        
-     - After attention, the result is passed through a feed-forward neural network independently at each position.
-     - Please refer to our primer on the Transformer architecture for more details.
-       
-  4. **Residual Connections** :
-     - Each sub-layer (like self-attention or feed-forward neural network) in the model has a residual connection around it, followed by layer normalization. This helps in stabilizing the activations and speeds up training.
+  4. **잔차연결 (Residual Connection)** :
+     - 모델의 각 하위 계층(예: 자기 어텐션 또는 피드포워드 신경망)은 주변에 잔여 연결이 적용된 후 계층 정규화가 수행됩니다. 이는 활성화를 안정화하고 훈련 속도를 높이는 데 도움이 됩니다.
 
-  5. **Output Layer** :
-     - After passing through all the transformer layers, the final representation of each token is transformed into a vector of logits, where each logit corresponds to a word in the model’s vocabulary.
-     - These logits describe the likelihood of each word being the next word in the sequence.
+  5. **출력 레이어** :
+     - 모든 트랜스포머 레이어를 통과한 후, 각 토큰의 최종 표현은 모델의 어휘목록에 있는 각 단어에 대응하는 로짓 벡터로 변환됩니다. 
+     - 이러한 로짓은 어휘 목록의 각 단어들이 시퀀스의 다음 단어가 될 가능성을 설명합니다.
 
-  6. **Probability Distribution** :
-     - To convert the logits into probabilities, the Softmax function is applied. It normalizes the logits such that they all lie between 0 and 1 and sum up to 1.
-     - The word with the highest probability can be chosen as the next word in the sequence.
+  7. **확률분포** :
+     - 로짓을 확률로 변환하기 위해 Softmax 함수가 적용됩니다. 이는 모두 0과 1 사이에 있고 합이 1이 되도록 로짓을 정규화합니다.
+     - 어휘 목록의 단어들 중 확률이 가장 높은 단어가 시퀀스의 다음 단어로 선택될 수 있습니다.
 
-  7. **Decoding** :
-     - Depending on the application, different decoding strategies like greedy decoding, beam search, or top-k sampling might be employed to generate coherent and contextually relevant sequences.
-     - Please refer to our primer on Token Sampling Methods for more details.
+  8. **디코딩 (Decoding)** :
+     - 적용되는 상황에 따라 일관되고 문맥에 맞는 시퀀스를 생성하기 위하여, 그리디 디코딩(greedy decoding), 빔 검색(beam search), Top-K 샘플링(top-k sampling)과 같은 다양한 디코딩 전략이 사용됩니다.  
+     - 자세한 내용은 [토큰 샘플링 방법](https://aman.ai/primers/ai/token-sampling/)에 대한 입문서를 참조하세요.
 
-- Through this multi-step process, LLMs can generate human-like text, understand context, and provide relevant responses or completions to prompts.
-
+- 여러 단계의 프로세스를 통해, LLM은 인간과 유사한 텍스트를 생성하고, 맥락을 이해하고, 프롬프트에 대한 관련 응답이나 완성을 제공할 수 있습니다.
 
 ### 2.1. LLM 학습 단계
 
-
-
+- 상위 수준에서, LLMs의 훈련에 포함되는 단계는 다음과 같습니다:
+    1. **문서(코퍼스, corpus) 준비** : 뉴스 기사, 소셜 미디어 게시물, 웹 문서 등 대규모 텍스트 데이터 모음을 수집합니다.
+    2. **토큰화** : 텍스트를 토큰이라고 하는 개별 단어 또는 하위 단어로 분할합니다.
+    3. **임베딩 생성** : 일반적으로 훈련을 처음 시작할 때 PyTorch의 nn.Embedding 클래스를 통해 랜덤하게 초기화된 임베딩 테이블을 사용합니다. 또한, Word2Vec, GloVe, FastText 등과 같은 사전 훈련된 임베딩도 사용할 수 있습니다. 이러한 임베딩은 입력 토큰의 맥락화되지 않은 벡터 형식을 나타냅니다.
+    4. **신경망 훈련** : 입력 토큰에 대한 신경망 모델을 훈련합니다.
+         - BERT 및 그 변형과 같은 인코더 모델의 경우 모델은 마스킹된 특정 단어의 전후 맥락(주변 단어)을 예측하는 방법을 학습합니다.
+         - BERT는 특히 마스킹된 단어를 예측하는 마스크드 언어 모델링 작업(Masked Language Modeling task 또는 Cloze task)과 다음 문장 예측 작업으로 훈련되었습니다; [BERT 입문서](https://aman.ai/primers/ai/bert/)에 설명되어 있습니다.
+         - GPT-N, LLaMA 등과 같은 디코더 모델의 경우 주어진 이전 토큰들의 맥락을 고려하여 시퀀스의 다음 토큰을 예측하는 방법을 학습합니다.
 
 ### 2.2. Reasoning
+
+- Let’s delve into how reasoning works in LLMs; we will define reasoning as the “ability to make inferences using evidence and logic.” (source)
+- There are a multitude of varieties of reasoning, such as commonsense reasoning or mathematical reasoning.
+- Similarly, there are a variety of methods to elicit reasoning from the model, one of them being chain-of-thought prompting which can be found here.
+- It’s important to note that the extent of how much reasoning an LLM uses in order to give its final prediction is still unknown, since teasing apart the contribution of reasoning and factual information to derive the final output is not a straightforward task.
