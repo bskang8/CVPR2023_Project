@@ -49,15 +49,16 @@
 - 상위 수준에서, LLMs의 훈련에 포함되는 단계는 다음과 같습니다:
     1. **문서(코퍼스, corpus) 준비** : 뉴스 기사, 소셜 미디어 게시물, 웹 문서 등 대규모 텍스트 데이터 모음을 수집합니다.
     2. **토큰화** : 텍스트를 토큰이라고 하는 개별 단어 또는 하위 단어로 분할합니다.
-    3. **임베딩 생성** : 일반적으로 훈련을 처음 시작할 때 PyTorch의 nn.Embedding 클래스를 통해 랜덤하게 초기화된 임베딩 테이블을 사용합니다. 또한, Word2Vec, GloVe, FastText 등과 같은 사전 훈련된 임베딩도 사용할 수 있습니다. 이러한 임베딩은 입력 토큰의 맥락화되지 않은 벡터 형식을 나타냅니다.
+    3. **임베딩 생성** : 일반적으로 훈련을 처음 시작할 때 PyTorch의 [`nn.Embedding`](https://pytorch.org/docs/stable/generated/torch.nn.Embedding.html) 클래스를 통해 랜덤하게 초기화된 임베딩 테이블을 사용합니다. 또한, Word2Vec, GloVe, FastText 등과 같은 사전 훈련된 임베딩도 사용할 수 있습니다. 이러한 임베딩은 입력 토큰의 맥락화되지 않은 벡터 형식을 나타냅니다.
     4. **신경망 훈련** : 입력 토큰에 대한 신경망 모델을 훈련합니다.
          - BERT 및 그 변형과 같은 인코더 모델의 경우 모델은 마스킹된 특정 단어의 전후 맥락(주변 단어)을 예측하는 방법을 학습합니다.
          - BERT는 특히 마스킹된 단어를 예측하는 마스크드 언어 모델링 작업(Masked Language Modeling task 또는 Cloze task)과 다음 문장 예측 작업으로 훈련되었습니다; [BERT 입문서](https://aman.ai/primers/ai/bert/)에 설명되어 있습니다.
          - GPT-N, LLaMA 등과 같은 디코더 모델의 경우 주어진 이전 토큰들의 맥락을 고려하여 시퀀스의 다음 토큰을 예측하는 방법을 학습합니다.
 
-### 2.2. Reasoning
+### 2.2. 추론 (Reasoning)
 
-- Let’s delve into how reasoning works in LLMs; we will define reasoning as the “ability to make inferences using evidence and logic.” (source)
-- There are a multitude of varieties of reasoning, such as commonsense reasoning or mathematical reasoning.
-- Similarly, there are a variety of methods to elicit reasoning from the model, one of them being chain-of-thought prompting which can be found here.
-- It’s important to note that the extent of how much reasoning an LLM uses in order to give its final prediction is still unknown, since teasing apart the contribution of reasoning and factual information to derive the final output is not a straightforward task.
+- LLM에서 추론이 어떻게 작동하는지 살펴보겠습니다; 우리는 추론을 “증거와 논리를 사용하여 추론하는 능력”으로 정의할 것입니다. [(source)](https://arxiv.org/pdf/2302.07842)
+- 추론에는 상식적 추론이나 수학적 추론과 같이 다양한 종류가 있습니다.
+- 마찬가지로, 모델에서 추론을 이끌어내는 방법 또한 다양하며 그 중 하나는 여기에서 언급하는 생각의 사슬(chain-of-thought) 프롬프팅 입니다.
+- 추론과 사실적 정보를 분리하여 최종 결과에 대한 기여도를 분석하는 것은 간단한 일이 아니기 때문에, LLM이 최종 예측을 위해 얼마나 많은 추론을 하는지 아직 알 수 없다는 점을 유의하는 것이 중요합니다.
+
